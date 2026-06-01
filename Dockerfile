@@ -66,6 +66,13 @@ USER root
 # The init script will skip the download when uv is already on PATH.
 RUN curl -LsSf https://astral.sh/uv/install.sh | env UV_INSTALL_DIR=/usr/local/bin sh
 
+# Pre-install hermes-agent in a venv so the WebUI has it available at runtime
+# without needing internet access on startup.
+RUN uv venv /opt/hermes-venv && \
+    . /opt/hermes-venv/bin/activate && \
+    uv pip install --no-cache-dir "hermes-agent[messaging,cron]" && \
+    rm -rf /root/.cache/uv
+
 COPY --chown=root:root . /apptoo
 
 # Bake the git version tag into the image so the settings badge works even
